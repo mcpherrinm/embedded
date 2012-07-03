@@ -3,19 +3,9 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
-ISR(BADISR_vect) {
-  // Catch-all interrupt handler.
-}
-
-
-
 static void uart_init(void) {
 	const uint32_t baud = 9600;
-	const uint32_t ubbr = ((F_CPU/(baud<<4))-1);
-	/*UBRR0H = (uint8_t)(ubbr>>8);
-	UBRR0L = (uint8_t)(ubbr);*/
-	UBRR0 = ubbr; /* uint16_t combination of above??? */
-
+	UBRR0 = ((F_CPU/(baud<<4))-1);
 	UCSR0A = 0;
 	/*async no parity 1 stop bit, 8-bit data*/
         UCSR0C = _BV(UCSZ01)|_BV(UCSZ00);
@@ -41,28 +31,10 @@ int main() {
 	stdin = &uart;
 	stdout = &uart;
 	uart_init();
-	DDRD = 1<<3|1<<1;
-	PORTD |= 1<<2;
-	int last = 0;
-	printf("Last: %p\n", &last);
+	DDRD = 1<<1;
 	while(1) {
-		/* Debug to make sure main loop is running */
-		if(PIND & 1<<2) {
-			PORTD &= ~(1<<3);
-			if(last) {
-				puts("toggle!");
-				last = 0;
-			}
-		} else {
-			PORTD |= 1<<3;
-			if(!last) {
-				puts("toggle!");
-				last = 1;
-			}
-		}
-		/* Echo console? okay */
 		int16_t c = getchar();
-		if(c != -1) putchar(c);
+		putchar(c);
 		if(c == '\r') putchar('\n');
 	}
 	return 0;
