@@ -31,9 +31,7 @@ static int uart_putchar(char c, FILE *stream) {
 }
 
 static int uart_getchar(FILE *stream) {
-	int delay = 1000;
-	while((UCSR0A&(1<<RXC0)) == 0 && delay-- > 0);
-	if((UCSR0A&(1<<RXC0)) == 0) return -1;
+	while((UCSR0A&(1<<RXC0)) == 0);
 	return UDR0;
 }
 
